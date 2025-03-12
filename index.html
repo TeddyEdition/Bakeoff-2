@@ -6,8 +6,8 @@
   <title>Cook-Off & Bake-Off Game</title>
   <!-- Google Fonts for a decorative, cottagecore feel -->
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Lora&display=swap" rel="stylesheet">
-  <!-- Link to external CSS if you want; otherwise inline styles below -->
   <style>
+    /* Styling for a bakery/cottagecore theme with red and black accents */
     body {
       font-family: 'Lora', serif;
       margin: 0;
@@ -54,7 +54,7 @@
     }
     .section {
       background: #fff;
-      border: 2px solid #e60026; /* red border */
+      border: 2px solid #e60026;
       border-radius: 10px;
       margin-bottom: 20px;
       padding: 20px;
@@ -75,7 +75,7 @@
     button:hover {
       background: #cc001f;
     }
-    #game-output {
+    #game-output, #game-output2 {
       margin-top: 20px;
       font-size: 1.2em;
       color: #333;
@@ -95,6 +95,27 @@
       border-radius: 5px;
       padding: 10px;
       margin: 5px 0;
+    }
+    /* Team Management styling */
+    .team-section {
+      border: 2px solid #333;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .team {
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #f0f0f0;
+      border-radius: 5px;
+    }
+    .player {
+      margin-left: 20px;
+      display: flex;
+      align-items: center;
+    }
+    .player span {
+      margin-right: 10px;
     }
   </style>
   <script defer src="script.js"></script>
@@ -141,17 +162,21 @@
           <input type="number" id="maxTime" placeholder="Max">
           <button id="randomizeTime">Randomize Time</button>
         </div>
-        <div>
-          <label for="players">Players (comma separated):</label>
-          <input type="text" id="players" placeholder="Player1, Player2, ...">
-        </div>
       </div>
+      
       <!-- Rule Generation Section -->
       <div class="section">
         <h2>Rule Generation</h2>
-        <button onclick="generateRules()">Generate Game Rule</button>
-        <div id="game-output"></div>
+        <div>
+          <button onclick="generateGameRule()">Generate Game Rule</button>
+          <div id="game-output"></div>
+        </div>
+        <div>
+          <button onclick="generateIndividualChallenge()">Generate Individual Challenge</button>
+          <div id="game-output2"></div>
+        </div>
       </div>
+      
       <!-- Session Management Section -->
       <div class="section">
         <h2>Session Management</h2>
@@ -160,7 +185,21 @@
           <em>No games in session yet.</em>
         </div>
       </div>
-      <!-- Secret Reveal Section (Placeholder for future use) -->
+      
+      <!-- Team Management Section -->
+      <div class="section team-section">
+        <h2>Team Management</h2>
+        <div>
+          <label for="teamNameInput">Team Name:</label>
+          <input type="text" id="teamNameInput" placeholder="Enter team name">
+          <button id="addTeam">Add Team</button>
+        </div>
+        <div id="teamsDisplay">
+          <em>No teams created yet.</em>
+        </div>
+      </div>
+      
+      <!-- Placeholder for Secret Reveal (for future enhancements) -->
       <div class="section" id="secretSection" style="display: none;">
         <h2>Secret Reveal</h2>
         <button id="revealSecret">Reveal Secret</button>
