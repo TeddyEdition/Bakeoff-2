@@ -1,79 +1,43 @@
 // -------------------------------
 // RULE DATA
 // -------------------------------
-// Two sets of rules: GAME rules and INDIVIDUAL challenges.
-// You can add more rules with the appropriate labels.
+// GAME rules: these affect the entire game
 const gameRules = [
-  { label: ["cookoff", "recipe", "team"], rule: "Game Rule 1: Everyone must use only local ingredients." },
-  { label: ["bakeoff", "norecipe", "individual"], rule: "Game Rule 2: Only pre-measured ingredients allowed." },
-  { label: ["cookoff", "norecipe", "team"], rule: "Game Rule 3: 90-second shopping spree!" },
-  { label: ["bakeoff", "recipe", "team"], rule: "Game Rule 4: Bake with a secret family recipe twist." }
+  { label: ["cookoff", "recipe", "team"], rule: "Game Rule 1: All dishes must include a locally sourced ingredient." },
+  { label: ["bakeoff", "norecipe", "individual"], rule: "Game Rule 2: Only pre-measured ingredients allowed for consistency." },
+  { label: ["cookoff", "norecipe", "team"], rule: "Game Rule 3: 90-second shopping spree for a surprise ingredient!" },
+  { label: ["bakeoff", "recipe", "team"], rule: "Game Rule 4: Incorporate a secret family recipe twist." }
 ];
-
+// INDIVIDUAL challenges: these affect only a single player's task
 const individualRules = [
   { label: ["cookoff", "recipe", "individual"], rule: "Individual Challenge 1: Use only one pan for the entire dish." },
-  { label: ["bakeoff", "norecipe", "individual"], rule: "Individual Challenge 2: Your dessert must have a hidden ingredient." },
-  { label: ["cookoff", "norecipe", "individual"], rule: "Individual Challenge 3: Prepare your dish blindfolded for 1 minute." },
-  { label: ["bakeoff", "recipe", "team"], rule: "Individual Challenge 4: Decorate your plate as a mini work of art." }
+  { label: ["bakeoff", "norecipe", "individual"], rule: "Individual Challenge 2: Your dessert must hide an unexpected ingredient." },
+  { label: ["cookoff", "norecipe", "individual"], rule: "Individual Challenge 3: Cook blindfolded for 1 minute during prep." },
+  { label: ["bakeoff", "recipe", "individual"], rule: "Individual Challenge 4: Decorate your plate as a miniature work of art." }
+];
+// TEAM game rules: these are applied to games in team mode (for both teams)
+const teamGameRules = [
+  { label: ["cookoff", "team"], rule: "Team Game Rule A: Both teams must swap one key ingredient mid-game." },
+  { label: ["bakeoff", "team"], rule: "Team Game Rule B: Each team must create two complementary components." }
 ];
 
-// Global variables for current rule selections
-let currentGameRule = null;
-let currentIndividualRule = null;
+// -------------------------------
+// GLOBAL VARIABLES
+// Array to store added games
+const games = [];
 
 // -------------------------------
-// SESSION MANAGEMENT DATA
-// Array to store session games.
-const sessionGames = [];
-
-// -------------------------------
-// TEAM MANAGEMENT DATA
-// Array to store teams. Each team is an object: { name: string, players: array }
-const teams = [];
-
-// -------------------------------
-// FUNCTION: generateGameRule
-function generateGameRule() {
-  const gameType = document.getElementById("gameType").value;
-  const recipeType = document.getElementById("recipeType").value;
-  const teamType = document.getElementById("teamType").value;
-  
-  const filteredGameRules = gameRules.filter(rule =>
-    (gameType === "both" ? (rule.label.includes("cookoff") || rule.label.includes("bakeoff")) : rule.label.includes(gameType)) &&
-    rule.label.includes(recipeType) &&
-    rule.label.includes(teamType)
-  );
-  
-  if (filteredGameRules.length > 0) {
-    currentGameRule = filteredGameRules[Math.floor(Math.random() * filteredGameRules.length)];
-    document.getElementById("game-output").innerText = `Game Rule: ${currentGameRule.rule}`;
-  } else {
-    document.getElementById("game-output").innerText = "No matching Game Rule found.";
-    currentGameRule = null;
+// PRESET GAME TYPE DESCRIPTION UPDATE
+document.getElementById("presetGameType").addEventListener("change", function() {
+  const value = this.value;
+  let description = "";
+  if (value === "standard") {
+    description = "Standard Game: Random rule generation for teams and individuals.";
+  } else if (value === "custom") {
+    description = "Custom Game: Choose your preset game type with additional explanation (preset rules available).";
   }
-}
-
-// -------------------------------
-// FUNCTION: generateIndividualChallenge
-function generateIndividualChallenge() {
-  const gameType = document.getElementById("gameType").value;
-  const recipeType = document.getElementById("recipeType").value;
-  const teamType = document.getElementById("teamType").value;
-  
-  const filteredIndividualRules = individualRules.filter(rule =>
-    (gameType === "both" ? (rule.label.includes("cookoff") || rule.label.includes("bakeoff")) : rule.label.includes(gameType)) &&
-    rule.label.includes(recipeType) &&
-    rule.label.includes(teamType)
-  );
-  
-  if (filteredIndividualRules.length > 0) {
-    currentIndividualRule = filteredIndividualRules[Math.floor(Math.random() * filteredIndividualRules.length)];
-    document.getElementById("game-output2").innerText = `Individual Challenge: ${currentIndividualRule.rule}`;
-  } else {
-    document.getElementById("game-output2").innerText = "No matching Individual Challenge found.";
-    currentIndividualRule = null;
-  }
-}
+  document.getElementById("presetDescription").innerHTML = `<em>${description}</em>`;
+});
 
 // -------------------------------
 // TIME RANDOMIZATION FUNCTIONALITY
@@ -85,133 +49,140 @@ document.getElementById("randomizeTime").addEventListener("click", function() {
     return;
   }
   const randomTime = Math.floor(Math.random() * (maxTime - minTime + 1)) + minTime;
-  document.getElementById("timeInput").value = randomTime;
+  document.getElementById("globalTime").value = randomTime;
 });
 
 // -------------------------------
-// SESSION MANAGEMENT
-document.getElementById("addGame").addEventListener("click", function() {
-  const gameType = document.getElementById("gameType").value;
-  const recipeType = document.getElementById("recipeType").value;
-  const teamType = document.getElementById("teamType").value;
-  const timeAllotted = document.getElementById("timeInput").value;
-  
-  if (!currentGameRule || !currentIndividualRule) {
-    alert("Please generate both Game Rule and Individual Challenge first.");
-    return;
+// FUNCTIONS TO GENERATE CHALLENGES FOR A GAME
+function generateIndividualChallengeForGame(game) {
+  const filtered = individualRules.filter(rule =>
+    rule.label.includes(game.type) &&
+    rule.label.includes(game.recipe) &&
+    rule.label.includes(game.mode)
+  );
+  if (filtered.length > 0) {
+    return filtered[Math.floor(Math.random() * filtered.length)].rule;
   }
-  
-  const game = {
-    gameType,
-    recipeType,
-    teamType,
-    timeAllotted,
-    gameRule: currentGameRule.rule,
-    individualRule: currentIndividualRule.rule
-  };
-  
-  sessionGames.push(game);
-  displaySession();
-  
-  currentGameRule = null;
-  currentIndividualRule = null;
-  document.getElementById("game-output").innerText = "";
-  document.getElementById("game-output2").innerText = "";
-});
+  return "No matching Individual Challenge found.";
+}
 
-function displaySession() {
-  const sessionDiv = document.getElementById("sessionDisplay");
-  if (sessionGames.length === 0) {
-    sessionDiv.innerHTML = "<em>No games in session yet.</em>";
-    return;
+function generateTeamGameRuleForGame(game) {
+  const filtered = teamGameRules.filter(rule =>
+    rule.label.includes(game.type) && rule.label.includes("team")
+  );
+  if (filtered.length > 0) {
+    return filtered[Math.floor(Math.random() * filtered.length)].rule;
   }
-  let html = `<h3>Session Games:</h3>`;
-  sessionGames.forEach((game, index) => {
-    html += `<div class="session-game">
-               <strong>Game ${index + 1}:</strong> ${game.gameType.toUpperCase()}, ${game.recipeType.toUpperCase()}, ${game.teamType.toUpperCase()}<br>
-               Time: ${game.timeAllotted} minutes<br>
-               Game Rule: ${game.gameRule}<br>
-               Individual Challenge: ${game.individualRule}
-             </div>`;
-  });
-  sessionDiv.innerHTML = html;
+  return "No matching Team Game Rule found.";
 }
 
 // -------------------------------
-// TEAM MANAGEMENT FUNCTIONS
-// Add a new team
-document.getElementById("addTeam").addEventListener("click", function() {
-  const teamName = document.getElementById("teamNameInput").value.trim();
-  if (!teamName) {
-    alert("Please enter a team name.");
-    return;
-  }
-  const team = { name: teamName, players: [] };
-  teams.push(team);
-  displayTeams();
-  document.getElementById("teamNameInput").value = "";
+// FUNCTION TO ADD A GAME
+// typeParam: "cookoff" or "bakeoff"
+function addGame(typeParam) {
+  const presetGameType = document.getElementById("presetGameType").value;
+  const recipe = document.getElementById("globalRecipeType").value;
+  const mode = document.getElementById("globalTeamType").value;
+  const timeAllotted = document.getElementById("globalTime").value;
+  
+  // Create game object with its own settings and generated challenges.
+  const game = {
+    type: typeParam,
+    preset: presetGameType,
+    recipe: recipe,
+    mode: mode,
+    time: timeAllotted,
+    individualChallenge: generateIndividualChallengeForGame({ type: typeParam, recipe: recipe, mode: mode }),
+    teamGameRule: (mode === "team" ? generateTeamGameRuleForGame({ type: typeParam, recipe: recipe, mode: mode }) : ""),
+    players: [] // Array to store player names (for both team and individual games)
+  };
+  
+  games.push(game);
+  displayGames();
+}
+
+// Event listeners for adding games:
+document.getElementById("addCookOff").addEventListener("click", function() {
+  addGame("cookoff");
+});
+document.getElementById("addBakeOff").addEventListener("click", function() {
+  addGame("bakeoff");
 });
 
-// Display teams and their players
-function displayTeams() {
-  const teamsDiv = document.getElementById("teamsDisplay");
-  if (teams.length === 0) {
-    teamsDiv.innerHTML = "<em>No teams created yet.</em>";
+// -------------------------------
+// DISPLAY GAMES
+function displayGames() {
+  const container = document.getElementById("gamesContainer");
+  if (games.length === 0) {
+    container.innerHTML = "<em>No games added yet.</em>";
     return;
   }
   let html = "";
-  teams.forEach((team, teamIndex) => {
-    html += `<div class="team">
-               <h3>${team.name}</h3>
-               <div id="team-${teamIndex}-players">`;
-    if (team.players.length === 0) {
-      html += "<em>No players yet.</em>";
-    } else {
-      team.players.forEach((player, playerIndex) => {
-        html += `<div class="player">
-                   <span>${player}</span>
-                   <button onclick="rollPlayer(${teamIndex}, ${playerIndex})">Roll Challenge</button>
-                   <span id="player-${teamIndex}-${playerIndex}-result"></span>
-                 </div>`;
-      });
+  games.forEach((game, index) => {
+    html += `<div class="game" id="game-${index}">
+               <h3>Game ${index + 1}: ${game.type.toUpperCase()} (${game.preset})</h3>
+               <p>Recipe Option: ${game.recipe}</p>
+               <p>Mode: ${game.mode}</p>
+               <p>Allotted Time: ${game.time} minutes</p>
+               <p>Individual Challenge: ${game.individualChallenge}</p>`;
+    if (game.mode === "team") {
+      html += `<p>Team Game Rule: ${game.teamGameRule}</p>`;
     }
-    html += `</div>
-             <div>
-               <input type="text" id="team-${teamIndex}-playerInput" placeholder="Enter player name">
-               <button onclick="addPlayer(${teamIndex})">Add Player</button>
+    // Player management section for this game (works for both team and individual)
+    html += `<div>
+               <label for="game-${index}-playerInput">Add Player:</label>
+               <input type="text" id="game-${index}-playerInput" placeholder="Enter player name">
+               <button class="btn-gray" onclick="addPlayer(${index})">Add Player</button>
+               <div id="game-${index}-players"><em>No players yet.</em></div>
              </div>
-             <div>
-               <button onclick="removeTeam(${teamIndex})">Remove Team</button>
-             </div>
-             </div>`;
+             <hr>
+             <button class="btn-blue" onclick="generateIndividualChallenge(${index})">Regenerate Individual Challenge</button>`;
+    if (game.mode === "team") {
+      html += `<button class="btn-blue" onclick="generateTeamGameRule(${index})">Regenerate Team Game Rule</button>`;
+    }
+    html += `</div>`;
   });
-  teamsDiv.innerHTML = html;
+  container.innerHTML = html;
 }
 
-// Add a player to a team
-function addPlayer(teamIndex) {
-  const inputId = `team-${teamIndex}-playerInput`;
+// -------------------------------
+// ADD PLAYER TO A GAME
+function addPlayer(gameIndex) {
+  const inputId = `game-${gameIndex}-playerInput`;
   const playerName = document.getElementById(inputId).value.trim();
   if (!playerName) {
     alert("Please enter a player name.");
     return;
   }
-  teams[teamIndex].players.push(playerName);
-  displayTeams();
-}
-
-// Remove a team
-function removeTeam(teamIndex) {
-  teams.splice(teamIndex, 1);
-  displayTeams();
-}
-
-// Roll challenge for an individual player (example: generate a random number)
-function rollPlayer(teamIndex, playerIndex) {
-  const result = Math.floor(Math.random() * 100) + 1;
-  document.getElementById(`player-${teamIndex}-${playerIndex}-result`).innerText = ` Challenge: ${result}`;
+  games[gameIndex].players.push(playerName);
+  displayGames();
 }
 
 // -------------------------------
-// Placeholder for Secret Functionality
-// Future code can reveal secrets based on fractions of the allotted time
+// REGENERATE INDIVIDUAL CHALLENGE FOR A GAME
+function generateIndividualChallenge(gameIndex) {
+  const game = games[gameIndex];
+  game.individualChallenge = generateIndividualChallengeForGame(game);
+  displayGames();
+}
+
+// -------------------------------
+// REGENERATE TEAM GAME RULE FOR A GAME (if applicable)
+function generateTeamGameRule(gameIndex) {
+  const game = games[gameIndex];
+  if (game.mode === "team") {
+    game.teamGameRule = generateTeamGameRuleForGame(game);
+  }
+  displayGames();
+}
+
+// -------------------------------
+// GAME Container: Create an area to display all games
+document.addEventListener("DOMContentLoaded", function() {
+  // Create a container for games if it doesn't exist
+  if (!document.getElementById("gamesContainer")) {
+    const div = document.createElement("div");
+    div.id = "gamesContainer";
+    document.querySelector(".container").appendChild(div);
+  }
+});
