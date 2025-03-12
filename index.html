@@ -1,40 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cook-Off & Bake-Off Game</title>
-    <script defer src="script.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
-        #game-output { margin-top: 20px; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cook-Off & Bake-Off Game</title>
+  <!-- Google Fonts for a decorative, cottagecore feel -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Lora&display=swap" rel="stylesheet">
+  <!-- Link to external CSS if you want; otherwise inline styles below -->
+  <style>
+    body {
+      font-family: 'Lora', serif;
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      background-image: url('https://source.unsplash.com/1600x900/?cottage,field');
+      background-size: cover;
+      background-attachment: fixed;
+      color: #333;
+    }
+    .overlay {
+      background: rgba(255, 255, 255, 0.92);
+      padding: 20px;
+      min-height: 100vh;
+    }
+    header {
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 20px 0;
+      text-align: center;
+      position: relative;
+    }
+    header h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 3em;
+      margin: 0;
+      color: #e60026; /* red accent */
+    }
+    header::after {
+      content: "";
+      background: url('https://source.unsplash.com/100x100/?bakery,icon') no-repeat center;
+      background-size: contain;
+      width: 100px;
+      height: 100px;
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      opacity: 0.7;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+    .section {
+      background: #fff;
+      border: 2px solid #e60026; /* red border */
+      border-radius: 10px;
+      margin-bottom: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    label, select, input, button {
+      font-size: 1.1em;
+      margin: 5px;
+    }
+    button {
+      background: #e60026;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 10px 15px;
+    }
+    button:hover {
+      background: #cc001f;
+    }
+    #game-output {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #333;
+      white-space: pre-wrap;
+    }
+    .session {
+      border: 2px dashed #333;
+      padding: 10px;
+      margin-top: 20px;
+    }
+    .session h3 {
+      margin-top: 0;
+      color: #e60026;
+    }
+    .session-game {
+      background: #f5f5f5;
+      border-radius: 5px;
+      padding: 10px;
+      margin: 5px 0;
+    }
+  </style>
+  <script defer src="script.js"></script>
 </head>
 <body>
-    <h1>Cook-Off & Bake-Off Game</h1>
-    
-    <label for="gameType">Select Game Type:</label>
-    <select id="gameType">
-        <option value="cookoff">Cook-Off</option>
-        <option value="bakeoff">Bake-Off</option>
-        <option value="both">Both</option>
-    </select>
-
-    <label for="recipeType">Recipe or No Recipe:</label>
-    <select id="recipeType">
-        <option value="recipe">Recipe</option>
-        <option value="norecipe">No Recipe</option>
-    </select>
-
-    <label for="teamType">Team or Individual:</label>
-    <select id="teamType">
-        <option value="team">Team</option>
-        <option value="individual">Individual</option>
-    </select>
-
-    <button onclick="generateRules()">Generate Game Rules</button>
-
-    <div id="game-output"></div>
+  <div class="overlay">
+    <header>
+      <h1>Cook & Bake Game</h1>
+    </header>
+    <div class="container">
+      <!-- Game Settings Section -->
+      <div class="section">
+        <h2>Game Settings</h2>
+        <div>
+          <label for="gameType">Game Type:</label>
+          <select id="gameType">
+            <option value="cookoff">Cook-Off</option>
+            <option value="bakeoff">Bake-Off</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+        <div>
+          <label for="recipeType">Recipe Option:</label>
+          <select id="recipeType">
+            <option value="recipe">Recipe</option>
+            <option value="norecipe">No Recipe</option>
+          </select>
+        </div>
+        <div>
+          <label for="teamType">Mode:</label>
+          <select id="teamType">
+            <option value="team">Team</option>
+            <option value="individual">Individual</option>
+          </select>
+        </div>
+        <div>
+          <label for="timeInput">Allotted Time (minutes):</label>
+          <input type="number" id="timeInput" placeholder="Enter time in minutes">
+        </div>
+        <div>
+          <label for="minTime">Min Time (minutes):</label>
+          <input type="number" id="minTime" placeholder="Min">
+          <label for="maxTime">Max Time (minutes):</label>
+          <input type="number" id="maxTime" placeholder="Max">
+          <button id="randomizeTime">Randomize Time</button>
+        </div>
+        <div>
+          <label for="players">Players (comma separated):</label>
+          <input type="text" id="players" placeholder="Player1, Player2, ...">
+        </div>
+      </div>
+      <!-- Rule Generation Section -->
+      <div class="section">
+        <h2>Rule Generation</h2>
+        <button onclick="generateRules()">Generate Game Rule</button>
+        <div id="game-output"></div>
+      </div>
+      <!-- Session Management Section -->
+      <div class="section">
+        <h2>Session Management</h2>
+        <button id="addGame">Add Game to Session</button>
+        <div id="sessionDisplay" class="session">
+          <em>No games in session yet.</em>
+        </div>
+      </div>
+      <!-- Secret Reveal Section (Placeholder for future use) -->
+      <div class="section" id="secretSection" style="display: none;">
+        <h2>Secret Reveal</h2>
+        <button id="revealSecret">Reveal Secret</button>
+        <div id="secretOutput"></div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
