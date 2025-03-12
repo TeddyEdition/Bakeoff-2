@@ -99,7 +99,6 @@
     .player span {
       margin-right: 10px;
     }
-    /* Team management section for individual games */
     .team-section {
       border: 2px solid #333;
       border-radius: 10px;
@@ -115,17 +114,25 @@
       <h1>Cook-Off & Bake-Off Games</h1>
     </header>
     <div class="container">
-      <!-- Global Game Setup Section (applies to new game creation) -->
+      <!-- Global Game Setup Section -->
       <div class="section">
         <h2>New Game Setup</h2>
         <div>
           <label for="presetGameType">Select Preset Game Type:</label>
           <select id="presetGameType">
-            <option value="standard">Standard Game</option>
-            <option value="custom">Custom Game</option>
+            <option value="TOOGOODTOGO">TOOGOODTOGO GROCERY</option>
+            <option value="90Seconds">90 Seconds</option>
+            <option value="AUCTION">AUCTION GAME</option>
+            <option value="Backward">Backward Recipe</option>
+            <option value="Speed">Speed Round</option>
+            <option value="Complicate">Complicate It</option>
+            <option value="Alphabet">Ingredient Alphabet</option>
+            <option value="Alternative">Alternative Auction</option>
+            <option value="CulturalCritique">Cultural Critique</option>
+            <option value="None">None (Custom Game)</option>
           </select>
           <div id="presetDescription">
-            <em>Standard Game: Random rule generation for teams and individuals.</em>
+            <em>Select a preset game type or choose None for a custom game.</em>
           </div>
         </div>
         <div>
