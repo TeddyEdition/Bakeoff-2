@@ -1,21 +1,21 @@
 // -------------------------------
-// RULE ARRAYS
+// RULE DATA ARRAYS
 // -------------------------------
 
-// Preset Gamemodes (these are preset and not randomly rolled)
+// Preset Gamemodes: These are selectable from the global dropdown.
 const presetGamemodes = [
-  { rule: "TOOGOODTOGO GROCERY - Only use items from a ToGoodToGo grocery bag.", labels: "CBNRIT" },
-  { rule: "90 Seconds - You only have 90 seconds to grab your ingredients.", labels: "preset" },
-  { rule: "AUCTION GAME - Bid for ingredients; winners keep them exclusively.", labels: "preset" },
-  { rule: "Backward Recipe - Start with the finished dish and reverse-engineer it.", labels: "preset" },
-  { rule: "Speed Round - Extremely short time limit (e.g., 15 minutes).", labels: "preset" },
-  { rule: "Complicate It - Make an incredibly complex dish.", labels: "preset" },
-  { rule: "Ingredient Alphabet - Use only ingredients starting with a specific letter.", labels: "preset" },
-  { rule: "Alternative Auction - Draw a mystery ingredient from a box.", labels: "preset" },
-  { rule: "Cultural Critique - Create a dish inspired by a random country.", labels: "preset" }
+  { key: "TOOGOODTOGO", rule: "TOOGOODTOGO GROCERY - Only use items from a ToGoodToGo grocery bag.", labels: "CBNRIT" },
+  { key: "90Seconds", rule: "90 Seconds - You only have 90 seconds to grab your ingredients.", labels: "preset" },
+  { key: "AUCTION", rule: "AUCTION GAME - Bid for ingredients; winners keep them exclusively.", labels: "preset" },
+  { key: "Backward", rule: "Backward Recipe - Start with the finished dish and reverse-engineer it.", labels: "preset" },
+  { key: "Speed", rule: "Speed Round - Extremely short time limit (e.g., 15 minutes).", labels: "preset" },
+  { key: "Complicate", rule: "Complicate It - Make an incredibly complex dish.", labels: "preset" },
+  { key: "Alphabet", rule: "Ingredient Alphabet - Use only ingredients starting with a specific letter.", labels: "preset" },
+  { key: "Alternative", rule: "Alternative Auction - Draw a mystery ingredient from a box.", labels: "preset" },
+  { key: "CulturalCritique", rule: "Cultural Critique - Create a dish inspired by a random country.", labels: "preset" }
 ];
 
-// Game Twists: affect the entire game (both teams or all competitors)
+// Game Twists: Affect the entire game (all players/teams)
 const gameTwists = [
   { rule: "Make it dessert - A sweet version of a savory item.", labels: "CNIT" },
   { rule: "Make it savory - A savory version of a sweet item.", labels: "BNIT" },
@@ -37,50 +37,80 @@ const gameTwists = [
   { rule: "Merge Teams - Randomly mix ingredient baskets with another team.", labels: "S" },
   { rule: "Recreate a Dish - Recreate a dish from a recipe; closest wins.", labels: "S" },
   { rule: "Double Swap - Two contestants swap one ingredient with each other.", labels: "S" },
-  { rule: "Rotate Counterclockwise - Gift an ingredient counterclockwise.", labels: "CNT" }
+  { rule: "Rotate Counterclockwise - Gift an ingredient counterclockwise.", labels: "CNT" },
+  { rule: "Ingredient Swap: At a random moment, swap one key ingredient with a competitor’s.", labels: "CBNIT" },
+  { rule: "Mystery Protein: Draw a protein at random that must be incorporated.", labels: "CNIT" }
+  // (Add additional game twists as needed)
 ];
 
-// Individual Twists: affect one competitor
+// Individual Twists: Affect one competitor only (generated via button next to player)
 const individualTwists = [
   { rule: "Single Hand - Cook using only your non-dominant hand.", labels: "CNRI" },
   { rule: "Blindfolded Builder - One person cooks blindfolded while others guide verbally.", labels: "CNRT" },
   { rule: "Mystery Basket Pass - Each member adds an ingredient from a mystery basket.", labels: "CBRT" },
   { rule: "Timed Relay - Each member has a set time to complete their station.", labels: "CBNRT" },
-  { rule: "Role Rotation - Swap roles (prep, cook, decorator) midway.", labels: "CNRT" },
-  { rule: "Ingredient Draft - Each member selects one ingredient silently.", labels: "CNT" },
-  { rule: "No-Talk Round - Communicate only through gestures during ingredient selection.", labels: "CNT" },
+  { rule: "Role Rotation - Swap roles midway (prep, cook, decorator).", labels: "CNRT" },
+  { rule: "Ingredient Draft - Each member silently selects one ingredient.", labels: "CNT" },
+  { rule: "No-Talk Round - Communicate only through gestures during selection.", labels: "CNT" },
   { rule: "Relay Assembly - Tag in a teammate to continue the dish.", labels: "CNT" }
+  // (Add additional individual twists as needed)
 ];
 
 // -------------------------------
-// HELPER FUNCTION: Check if rule matches current settings
-// current settings: gameType ("C" for cookoff, "B" for bakeoff), recipeOption ("R" or "N"), mode ("I" or "T")
-function ruleMatches(ruleLabels, gameType, recipeOption, mode) {
-  // If it's a preset gamemode rule (labels "preset"), skip random roll here.
-  if (ruleLabels.includes("preset")) return false;
-  
-  if (gameType === "C" && !ruleLabels.includes("C")) return false;
-  if (gameType === "B" && !ruleLabels.includes("B")) return false;
-  if (recipeOption === "R" && !ruleLabels.includes("R")) return false;
-  if (recipeOption === "N" && !ruleLabels.includes("N")) return false;
-  if (mode === "I" && !ruleLabels.includes("I")) return false;
-  if (mode === "T" && !ruleLabels.includes("T")) return false;
+// HELPER FUNCTION: ruleMatches
+// Checks if a rule’s labels include required letters from game settings.
+// gameSettings: { type: "C" or "B", recipe: "R" or "N", mode: "I" or "T" }
+function ruleMatches(ruleLabels, gameSettings) {
+  // If the rule is a preset gamemode rule (contains "preset"), it should NOT be rolled here.
+  if (ruleLabels.indexOf("preset") !== -1) return false;
+  if (gameSettings.type === "C" && ruleLabels.indexOf("C") === -1) return false;
+  if (gameSettings.type === "B" && ruleLabels.indexOf("B") === -1) return false;
+  if (gameSettings.recipe === "R" && ruleLabels.indexOf("R") === -1) return false;
+  if (gameSettings.recipe === "N" && ruleLabels.indexOf("N") === -1) return false;
+  if (gameSettings.mode === "I" && ruleLabels.indexOf("I") === -1) return false;
+  if (gameSettings.mode === "T" && ruleLabels.indexOf("T") === -1) return false;
   return true;
 }
 
 // -------------------------------
 // GLOBAL VARIABLES FOR GAMES
-const games = [];  // Each game will store its settings, generated twists, players, etc.
+const games = []; // Array to store game objects
 
 // -------------------------------
 // PRESET GAME TYPE DESCRIPTION UPDATE
 document.getElementById("presetGameType").addEventListener("change", function() {
   const value = this.value;
   let description = "";
-  if (value === "standard") {
-    description = "Standard Game: Random rule generation for teams and individuals.";
-  } else if (value === "custom") {
-    description = "Custom Game: Preset game type with additional explanation available.";
+  switch(value) {
+    case "TOOGOODTOGO":
+      description = "TOOGOODTOGO GROCERY - Only use items from a ToGoodToGo grocery bag.";
+      break;
+    case "90Seconds":
+      description = "90 Seconds - You only have 90 seconds to grab your ingredients.";
+      break;
+    case "AUCTION":
+      description = "AUCTION GAME - Bid for ingredients; winners keep them exclusively.";
+      break;
+    case "Backward":
+      description = "Backward Recipe - Start with the finished dish and reverse-engineer it.";
+      break;
+    case "Speed":
+      description = "Speed Round - Extremely short time limit (e.g., 15 minutes).";
+      break;
+    case "Complicate":
+      description = "Complicate It - Make an incredibly complex dish.";
+      break;
+    case "Alphabet":
+      description = "Ingredient Alphabet - Use only ingredients starting with a specific letter.";
+      break;
+    case "Alternative":
+      description = "Alternative Auction - Draw a mystery ingredient from a box.";
+      break;
+    case "CulturalCritique":
+      description = "Cultural Critique - Create a dish inspired by a random country.";
+      break;
+    default:
+      description = "None selected (Custom Game).";
   }
   document.getElementById("presetDescription").innerHTML = `<em>${description}</em>`;
 });
@@ -99,24 +129,21 @@ document.getElementById("randomizeTime").addEventListener("click", function() {
 });
 
 // -------------------------------
-// FUNCTIONS TO GENERATE TWISTS BASED ON GAME SETTINGS
-// Game Twist (affects entire game)
-function generateGameTwist(game) {
-  // game has: type ("C" for cookoff or "B" for bakeoff), recipe (R or N), mode (I or T)
-  const filtered = gameTwists.filter(item =>
-    ruleMatches(item.labels, game.type, game.recipe, game.mode)
-  );
+// FUNCTION TO GENERATE A GAME Twist (for entire game)
+// Does not auto-generate individual twists.
+function generateGameTwist(gameSettings) {
+  const filtered = gameTwists.filter(item => ruleMatches(item.labels, gameSettings));
   if (filtered.length > 0) {
     return filtered[Math.floor(Math.random() * filtered.length)].rule;
   }
   return "No matching Game Twist found.";
 }
 
-// Individual Twist (affects one competitor)
-function generateIndividualTwist(game) {
-  const filtered = individualTwists.filter(item =>
-    ruleMatches(item.labels, game.type, game.recipe, game.mode)
-  );
+// -------------------------------
+// FUNCTION TO GENERATE AN INDIVIDUAL TWIST
+// This is triggered for individual players.
+function generateIndividualTwist(gameSettings) {
+  const filtered = individualTwists.filter(item => ruleMatches(item.labels, gameSettings));
   if (filtered.length > 0) {
     return filtered[Math.floor(Math.random() * filtered.length)].rule;
   }
@@ -129,21 +156,30 @@ function generateIndividualTwist(game) {
 function addGame(typeParam) {
   // Convert game type to letter: "C" for cookoff, "B" for bakeoff.
   const gameTypeLetter = (typeParam === "cookoff") ? "C" : "B";
-  const recipe = document.getElementById("globalRecipeType").value; // already "R" or "N"
-  const mode = document.getElementById("globalTeamType").value; // already "T" or "I"
+  const recipe = document.getElementById("globalRecipeType").value; // "R" or "N"
+  const mode = document.getElementById("globalTeamType").value; // "T" or "I"
   const timeAllotted = document.getElementById("globalTime").value;
-  const presetGameType = document.getElementById("presetGameType").value;
+  const preset = document.getElementById("presetGameType").value; // e.g., "TOOGOODTOGO", etc.
   
-  // Create game object
+  // If a preset is chosen (not "None"), get the preset rule.
+  let presetRule = "";
+  if (preset !== "None") {
+    // Look up preset rule from our presetGamemodes array.
+    const presetObj = presetGamemodes.find(item => item.key === preset);
+    if (presetObj) presetRule = presetObj.rule;
+  }
+  
+  // Create game object; note: we do NOT generate an individual twist here.
   const game = {
     type: gameTypeLetter,
     recipe: recipe,
     mode: mode,
     time: timeAllotted,
-    preset: presetGameType,
-    gameTwist: generateGameTwist({ type: gameTypeLetter, recipe: recipe, mode: mode }),
-    individualTwist: generateIndividualTwist({ type: gameTypeLetter, recipe: recipe, mode: mode }),
-    players: []  // For player names
+    preset: preset,
+    presetRule: presetRule,
+    gameTwist: "", // To be generated via button
+    // individualTwists will be generated per player later.
+    players: []  // Array to store player names and their individual twist (if rolled)
   };
   
   games.push(game);
@@ -169,13 +205,15 @@ function displayGames() {
   let html = "";
   games.forEach((game, index) => {
     html += `<div class="game" id="game-${index}">
-               <h3>Game ${index + 1}: ${game.type === "C" ? "COOK-OFF" : "BAKE-OFF"} (${game.preset})</h3>
+               <h3>Game ${index + 1}: ${game.type === "C" ? "COOK-OFF" : "BAKE-OFF"} (${game.preset !== "None" ? game.presetRule : "Custom Game"})</h3>
                <p>Recipe Option: ${game.recipe === "R" ? "Recipe" : "No Recipe"}</p>
                <p>Mode: ${game.mode === "T" ? "Team" : "Individual"}</p>
                <p>Allotted Time: ${game.time} minutes</p>
-               <p><strong>Game Twist:</strong> ${game.gameTwist}</p>
-               <p><strong>Individual Twist:</strong> ${game.individualTwist}</p>`;
-    // Player management section for this game
+               <p><strong>Game Twist:</strong> ${game.gameTwist ? game.gameTwist : "Not generated yet"}</p>`;
+    // Add button to generate game twist.
+    html += `<button class="btn-blue" onclick="regenerateGameTwist(${index})">Generate Game Twist</button>`;
+    
+    // Player management section
     html += `<div>
                <label for="game-${index}-playerInput">Add Player:</label>
                <input type="text" id="game-${index}-playerInput" placeholder="Enter player name">
@@ -186,19 +224,28 @@ function displayGames() {
     } else {
       game.players.forEach((player, pIndex) => {
         html += `<div class="player">
-                   <span>${player}</span>
+                   <span>${player.name}</span>
                    <button class="btn-blue" onclick="rollIndividual(${index}, ${pIndex})">Roll Individual Twist</button>
-                   <span id="game-${index}-player-${pIndex}-result"></span>
+                   <span id="game-${index}-player-${pIndex}-result">${player.individualTwist ? player.individualTwist : ""}</span>
                  </div>`;
       });
     }
     html += `</div>
-             </div>
-             <hr>
-             <button class="btn-blue" onclick="regenerateGameTwist(${index})">Regenerate Game Twist</button>`;
+             </div>`;
+    
+    // If game mode is team, show team management for that game.
     if (game.mode === "T") {
-      html += `<button class="btn-blue" onclick="regenerateTeamTwist(${index})">Regenerate Team Twist</button>`;
+      html += `<div class="team-section">
+                 <h4>Team Management for Game ${index + 1}</h4>
+                 <div>
+                   <label for="game-${index}-teamNameInput">Team Name:</label>
+                   <input type="text" id="game-${index}-teamNameInput" placeholder="Enter team name">
+                   <button class="btn-gray" onclick="addTeam(${index})">Add Team</button>
+                 </div>
+                 <div id="game-${index}-teams"><em>No teams added yet.</em></div>
+               </div>`;
     }
+    
     html += `</div>`;
   });
   container.innerHTML = html;
@@ -213,7 +260,8 @@ function addPlayer(gameIndex) {
     alert("Please enter a player name.");
     return;
   }
-  games[gameIndex].players.push(playerName);
+  // Each player is an object with name and individualTwist (empty initially)
+  games[gameIndex].players.push({ name: playerName, individualTwist: "" });
   displayGames();
 }
 
@@ -221,23 +269,107 @@ function addPlayer(gameIndex) {
 // REROLL FUNCTIONS
 function regenerateGameTwist(gameIndex) {
   const game = games[gameIndex];
-  game.gameTwist = generateGameTwist(game);
-  displayGames();
-}
-
-function regenerateTeamTwist(gameIndex) {
-  // For team mode, we assume team twist is part of game twist; re-roll same as game twist.
-  const game = games[gameIndex];
-  game.gameTwist = generateGameTwist(game);
+  // Generate a game twist based on the game settings.
+  const gameSettings = { type: game.type, recipe: game.recipe, mode: game.mode };
+  const filtered = gameTwists.filter(item => ruleMatches(item.labels, gameSettings));
+  if (filtered.length > 0) {
+    game.gameTwist = filtered[Math.floor(Math.random() * filtered.length)].rule;
+  } else {
+    game.gameTwist = "No matching Game Twist found.";
+  }
   displayGames();
 }
 
 function rollIndividual(gameIndex, playerIndex) {
-  // For an individual twist re-roll, we simply generate a new individual twist
   const game = games[gameIndex];
-  const newIndiv = generateIndividualTwist(game);
-  // Update only for this player? (For now, we display it next to the player.)
-  document.getElementById(`game-${gameIndex}-player-${playerIndex}-result`).innerText = " " + newIndiv;
+  const gameSettings = { type: game.type, recipe: game.recipe, mode: game.mode };
+  const filtered = individualTwists.filter(item => ruleMatches(item.labels, gameSettings));
+  let newTwist = "";
+  if (filtered.length > 0) {
+    newTwist = filtered[Math.floor(Math.random() * filtered.length)].rule;
+  } else {
+    newTwist = "No matching Individual Twist found.";
+  }
+  // Update the player's individualTwist property.
+  game.players[playerIndex].individualTwist = newTwist;
+  displayGames();
+}
+
+// -------------------------------
+// TEAM MANAGEMENT FUNCTIONS (for games in team mode)
+function addTeam(gameIndex) {
+  const teamInputId = `game-${gameIndex}-teamNameInput`;
+  const teamName = document.getElementById(teamInputId).value.trim();
+  if (!teamName) {
+    alert("Please enter a team name.");
+    return;
+  }
+  // If the game doesn't have a teams array, initialize it.
+  if (!games[gameIndex].teams) {
+    games[gameIndex].teams = [];
+  }
+  games[gameIndex].teams.push({ name: teamName, players: [] });
+  displayTeams(gameIndex);
+  document.getElementById(teamInputId).value = "";
+}
+
+function displayTeams(gameIndex) {
+  const teamsDivId = `game-${gameIndex}-teams`;
+  const teamsDiv = document.getElementById(teamsDivId);
+  const game = games[gameIndex];
+  if (!game.teams || game.teams.length === 0) {
+    teamsDiv.innerHTML = "<em>No teams added yet.</em>";
+    return;
+  }
+  let html = "";
+  game.teams.forEach((team, tIndex) => {
+    html += `<div class="team" id="game-${gameIndex}-team-${tIndex}">
+               <h4>${team.name}</h4>
+               <label for="game-${gameIndex}-team-${tIndex}-playerInput">Add Player:</label>
+               <input type="text" id="game-${gameIndex}-team-${tIndex}-playerInput" placeholder="Enter player name">
+               <button class="btn-gray" onclick="addTeamPlayer(${gameIndex}, ${tIndex})">Add Player</button>
+               <div id="game-${gameIndex}-team-${tIndex}-players">`;
+    if (team.players.length === 0) {
+      html += "<em>No players yet.</em>";
+    } else {
+      team.players.forEach((player, pIndex) => {
+        html += `<div class="player">
+                   <span>${player.name}</span>
+                   <button class="btn-blue" onclick="rollTeamIndividual(${gameIndex}, ${tIndex}, ${pIndex})">Roll Individual Twist</button>
+                   <span id="game-${gameIndex}-team-${tIndex}-player-${pIndex}-result">${player.individualTwist ? player.individualTwist : ""}</span>
+                 </div>`;
+      });
+    }
+    html += `</div>
+             </div>`;
+  });
+  teamsDiv.innerHTML = html;
+}
+
+function addTeamPlayer(gameIndex, teamIndex) {
+  const inputId = `game-${gameIndex}-team-${teamIndex}-playerInput`;
+  const playerName = document.getElementById(inputId).value.trim();
+  if (!playerName) {
+    alert("Please enter a player name.");
+    return;
+  }
+  const game = games[gameIndex];
+  game.teams[teamIndex].players.push({ name: playerName, individualTwist: "" });
+  displayTeams(gameIndex);
+}
+
+function rollTeamIndividual(gameIndex, teamIndex, playerIndex) {
+  const game = games[gameIndex];
+  const gameSettings = { type: game.type, recipe: game.recipe, mode: game.mode };
+  const filtered = individualTwists.filter(item => ruleMatches(item.labels, gameSettings));
+  let newTwist = "";
+  if (filtered.length > 0) {
+    newTwist = filtered[Math.floor(Math.random() * filtered.length)].rule;
+  } else {
+    newTwist = "No matching Individual Twist found.";
+  }
+  game.teams[teamIndex].players[playerIndex].individualTwist = newTwist;
+  displayTeams(gameIndex);
 }
 
 // -------------------------------
