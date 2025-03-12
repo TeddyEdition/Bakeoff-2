@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cook-Off & Bake-Off Game</title>
+    <script defer src="script.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        #game-output { margin-top: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Cook-Off & Bake-Off Game</h1>
+    
+    <label for="gameType">Select Game Type:</label>
+    <select id="gameType">
+        <option value="cookoff">Cook-Off</option>
+        <option value="bakeoff">Bake-Off</option>
+        <option value="both">Both</option>
+    </select>
+
+    <label for="recipeType">Recipe or No Recipe:</label>
+    <select id="recipeType">
+        <option value="recipe">Recipe</option>
+        <option value="norecipe">No Recipe</option>
+    </select>
+
+    <label for="teamType">Team or Individual:</label>
+    <select id="teamType">
+        <option value="team">Team</option>
+        <option value="individual">Individual</option>
+    </select>
+
+    <button onclick="generateRules()">Generate Game Rules</button>
+
+    <div id="game-output"></div>
+</body>
+</html>
