@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cook-Off & Bake-Off Game</title>
+  <title>Cook-Off & Bake-Off Games</title>
   <!-- Google Fonts for a decorative, cottagecore feel -->
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Lora&display=swap" rel="stylesheet">
   <style>
-    /* Styling for a bakery/cottagecore theme with red and black accents */
+    /* Bakery/Cottagecore Theme with Red & Black Accents */
     body {
       font-family: 'Lora', serif;
       margin: 0;
@@ -34,7 +34,7 @@
       font-family: 'Dancing Script', cursive;
       font-size: 3em;
       margin: 0;
-      color: #e60026; /* red accent */
+      color: #e60026;
     }
     header::after {
       content: "";
@@ -48,7 +48,7 @@
       opacity: 0.7;
     }
     .container {
-      max-width: 800px;
+      max-width: 1000px;
       margin: auto;
       padding: 20px;
     }
@@ -75,44 +75,26 @@
     button:hover {
       background: #cc001f;
     }
-    #game-output, #game-output2 {
+    #globalOutput, .game-output, .team-output {
       margin-top: 20px;
       font-size: 1.2em;
       color: #333;
       white-space: pre-wrap;
     }
-    .session {
+    .game {
       border: 2px dashed #333;
       padding: 10px;
       margin-top: 20px;
     }
-    .session h3 {
-      margin-top: 0;
-      color: #e60026;
-    }
-    .session-game {
-      background: #f5f5f5;
-      border-radius: 5px;
-      padding: 10px;
-      margin: 5px 0;
-    }
-    /* Team Management styling */
-    .team-section {
-      border: 2px solid #333;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
     .team {
-      margin-bottom: 10px;
-      padding: 10px;
-      background: #f0f0f0;
-      border-radius: 5px;
+      border: 1px solid #999;
+      padding: 5px;
+      margin: 5px;
     }
     .player {
-      margin-left: 20px;
       display: flex;
       align-items: center;
+      margin: 3px 0;
     }
     .player span {
       margin-right: 10px;
@@ -123,37 +105,39 @@
 <body>
   <div class="overlay">
     <header>
-      <h1>Cook & Bake Game</h1>
+      <h1>Cook-Off & Bake-Off Games</h1>
     </header>
     <div class="container">
-      <!-- Game Settings Section -->
+      <!-- Global Game Setup Section -->
       <div class="section">
-        <h2>Game Settings</h2>
+        <h2>New Game Setup</h2>
         <div>
-          <label for="gameType">Game Type:</label>
-          <select id="gameType">
-            <option value="cookoff">Cook-Off</option>
-            <option value="bakeoff">Bake-Off</option>
-            <option value="both">Both</option>
+          <label for="presetGameType">Select Preset Game Type:</label>
+          <select id="presetGameType">
+            <option value="standard">Standard Game (Random rules generated)</option>
+            <option value="custom">Custom Game (Preset explanation available)</option>
           </select>
+          <div id="presetDescription">
+            <em>Standard Game: A preset game with random team and individual rule generation.</em>
+          </div>
         </div>
         <div>
-          <label for="recipeType">Recipe Option:</label>
-          <select id="recipeType">
+          <label for="globalRecipeType">Recipe Option:</label>
+          <select id="globalRecipeType">
             <option value="recipe">Recipe</option>
             <option value="norecipe">No Recipe</option>
           </select>
         </div>
         <div>
-          <label for="teamType">Mode:</label>
-          <select id="teamType">
+          <label for="globalTeamType">Mode:</label>
+          <select id="globalTeamType">
             <option value="team">Team</option>
             <option value="individual">Individual</option>
           </select>
         </div>
         <div>
-          <label for="timeInput">Allotted Time (minutes):</label>
-          <input type="number" id="timeInput" placeholder="Enter time in minutes">
+          <label for="globalTime">Allotted Time (minutes):</label>
+          <input type="number" id="globalTime" placeholder="Enter time in minutes">
         </div>
         <div>
           <label for="minTime">Min Time (minutes):</label>
@@ -164,46 +148,16 @@
         </div>
       </div>
       
-      <!-- Rule Generation Section -->
+      <!-- Add Game Buttons -->
       <div class="section">
-        <h2>Rule Generation</h2>
-        <div>
-          <button onclick="generateGameRule()">Generate Game Rule</button>
-          <div id="game-output"></div>
-        </div>
-        <div>
-          <button onclick="generateIndividualChallenge()">Generate Individual Challenge</button>
-          <div id="game-output2"></div>
-        </div>
+        <h2>Add Game</h2>
+        <button id="addCookOff">Add Cook-Off</button>
+        <button id="addBakeOff">Add Bake-Off</button>
       </div>
       
-      <!-- Session Management Section -->
-      <div class="section">
-        <h2>Session Management</h2>
-        <button id="addGame">Add Game to Session</button>
-        <div id="sessionDisplay" class="session">
-          <em>No games in session yet.</em>
-        </div>
-      </div>
-      
-      <!-- Team Management Section -->
-      <div class="section team-section">
-        <h2>Team Management</h2>
-        <div>
-          <label for="teamNameInput">Team Name:</label>
-          <input type="text" id="teamNameInput" placeholder="Enter team name">
-          <button id="addTeam">Add Team</button>
-        </div>
-        <div id="teamsDisplay">
-          <em>No teams created yet.</em>
-        </div>
-      </div>
-      
-      <!-- Placeholder for Secret Reveal (for future enhancements) -->
-      <div class="section" id="secretSection" style="display: none;">
-        <h2>Secret Reveal</h2>
-        <button id="revealSecret">Reveal Secret</button>
-        <div id="secretOutput"></div>
+      <!-- Games Container -->
+      <div id="gamesContainer">
+        <em>No games added yet.</em>
       </div>
     </div>
   </div>
