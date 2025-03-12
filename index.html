@@ -38,8 +38,7 @@
     }
     header::after {
       content: "";
-      background: url('https://source.unsplash.com/100x100/?bakery,icon');
-      background-repeat: no-repeat;
+      background: url('https://source.unsplash.com/100x100/?bakery,icon') no-repeat center;
       background-size: contain;
       width: 100px;
       height: 100px;
@@ -65,7 +64,7 @@
       font-size: 1.1em;
       margin: 5px;
     }
-    /* Use different button colors */
+    /* Different button colors */
     button {
       border: none;
       border-radius: 5px;
@@ -73,8 +72,8 @@
       padding: 10px 15px;
     }
     .btn-red { background: #e60026; color: #fff; }
-    .btn-gray { background: #555; color: #fff; }
     .btn-blue { background: #0066cc; color: #fff; }
+    .btn-gray { background: #555; color: #fff; }
     button:hover { opacity: 0.9; }
     #globalOutput, .game-output, .team-output {
       margin-top: 20px;
@@ -100,6 +99,13 @@
     .player span {
       margin-right: 10px;
     }
+    /* Team management section for individual games */
+    .team-section {
+      border: 2px solid #333;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
   </style>
   <script defer src="script.js"></script>
 </head>
@@ -109,7 +115,7 @@
       <h1>Cook-Off & Bake-Off Games</h1>
     </header>
     <div class="container">
-      <!-- Global Game Setup Section -->
+      <!-- Global Game Setup Section (applies to new game creation) -->
       <div class="section">
         <h2>New Game Setup</h2>
         <div>
@@ -125,15 +131,15 @@
         <div>
           <label for="globalRecipeType">Recipe Option:</label>
           <select id="globalRecipeType">
-            <option value="recipe">Recipe</option>
-            <option value="norecipe">No Recipe</option>
+            <option value="R">Recipe</option>
+            <option value="N">No Recipe</option>
           </select>
         </div>
         <div>
           <label for="globalTeamType">Mode:</label>
           <select id="globalTeamType">
-            <option value="team">Team</option>
-            <option value="individual">Individual</option>
+            <option value="T">Team</option>
+            <option value="I">Individual</option>
           </select>
         </div>
         <div>
